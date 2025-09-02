@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QT.Packaging.VinsionPrinter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QT.Packaging.SealingDetection", "QT.Packaging.SealingDetection\QT.Packaging.SealingDetection.csproj", "{755D9529-5F7E-42F1-8A0E-F7E5E8AB2888}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QT.Packaging.Shared", "QT.Packaging.Shared\QT.Packaging.Shared.csproj", "{CD566F47-9376-4EBD-A4A4-A0C022C88D26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{755D9529-5F7E-42F1-8A0E-F7E5E8AB2888}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{755D9529-5F7E-42F1-8A0E-F7E5E8AB2888}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{755D9529-5F7E-42F1-8A0E-F7E5E8AB2888}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD566F47-9376-4EBD-A4A4-A0C022C88D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD566F47-9376-4EBD-A4A4-A0C022C88D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD566F47-9376-4EBD-A4A4-A0C022C88D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD566F47-9376-4EBD-A4A4-A0C022C88D26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace QT.Packaging.Base
+﻿namespace QT.Packaging.Shared
 {
     public class Class1
     {
