@@ -11,15 +11,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
 
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.0" />
     <PackageReference Include="Meadow.Foundation" Version="1.2" />
     <PackageReference Include="Meadow.Linux" Version="1.2" />
     <PackageReference Include="Meadow.Windows" Version="1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QT.Packaging.Base\QT.Packaging.Base.csproj" />
+    <ProjectReference Include="..\QT.Packaging.Robot\QT.Packaging.Robot.csproj" />
+    <ProjectReference Include="..\QT.Packaging.SealingDetection\QT.Packaging.SealingDetection.csproj" />
+    <ProjectReference Include="..\QT.Packaging.Shared\QT.Packaging.Shared.csproj" />
+    <ProjectReference Include="..\QT.Packaging.VinsionPrinter\QT.Packaging.VinsionPrinter.csproj" />
   </ItemGroup>
 </Project>
