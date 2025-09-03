@@ -1,28 +1,49 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net8.0-android</TargetFrameworks>
     <Nullable>enable</Nullable>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    
+    <!-- 桌面平台专用配置 -->
+    <OutputType Condition="'$(TargetFramework)' == 'net8.0'">WinExe</OutputType>
+    <BuiltInComInteropSupport Condition="'$(TargetFramework)' == 'net8.0'">true</BuiltInComInteropSupport>
+    <ApplicationManifest Condition="'$(TargetFramework)' == 'net8.0'">app.manifest</ApplicationManifest>
+    
+    <!-- Android 平台专用配置 - 作为库供主应用使用 -->
+    <OutputType Condition="'$(TargetFramework)' == 'net8.0-android'">Library</OutputType>
+    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-android'">21</SupportedOSPlatformVersion>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net8.0-android'">$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Models\" />
+  </ItemGroup>
+
+  <!-- 资源文件 - 仅桌面平台 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  <!-- 通用包引用 -->
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+  </ItemGroup>
+
+  <!-- 桌面平台专用包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.0">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
-	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+  </ItemGroup>
+
+  <!-- Android 平台专用包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+    <PackageReference Include="Avalonia.Android" Version="11.3.0" />
   </ItemGroup>
 </Project>

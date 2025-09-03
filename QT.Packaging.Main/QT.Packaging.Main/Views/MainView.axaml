@@ -13,7 +13,7 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <Grid>
+  <Grid RowDefinitions="Auto,*">
     <!-- 主题切换按钮 - 右上角 -->
     <Button Name="ThemeToggleButton"
             HorizontalAlignment="Right"
@@ -43,8 +43,48 @@
                                     Foreground="{DynamicResource SukiText}" />
       </Grid>
     </Button>
+
+    <!-- 扫码输入框和操作按钮区域 -->
+    <StackPanel Grid.Row="0" 
+                Orientation="Horizontal" 
+                VerticalAlignment="Top"
+                Margin="20,20,80,0"
+                Spacing="10">
+      
+      <!-- 扫码输入框 -->
+      <TextBox Name="ScannerInputBox"
+               Width="200"
+               Height="32"
+               Watermark="请扫描或输入条码"
+               CornerRadius="6"/>
+      
+      <!-- 确认按钮 -->
+      <Button Name="ConfirmButton"
+              Width="80"
+              Height="32"
+              CornerRadius="6"
+              Content="确认"
+              ToolTip.Tip="确认输入内容"/>
+      
+      <!-- 载入机器按钮 -->
+      <Button Name="LoadMachineButton"
+              Width="100"
+              Height="32"
+              CornerRadius="6"
+              Content="载入机器"
+              ToolTip.Tip="载入机器配置"/>
+      
+      <!-- 保存配置按钮 -->
+      <Button Name="SaveConfigButton"
+              Width="100"
+              Height="32"
+              CornerRadius="6"
+              Content="保存配置"
+              ToolTip.Tip="保存当前配置"/>
+      
+    </StackPanel>
     
     <!-- 主要内容区域 -->
-    <ContentPresenter />
+    <ContentPresenter Grid.Row="1" />
   </Grid>
 </UserControl>

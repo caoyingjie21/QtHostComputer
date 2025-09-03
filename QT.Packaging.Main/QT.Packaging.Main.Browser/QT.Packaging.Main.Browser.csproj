@@ -1,8 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-browser</TargetFramework>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- 明确指定不使用 ASP.NET Core -->
+    <UseAspNetCore>false</UseAspNetCore>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <!-- 启用 WebAssembly -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>

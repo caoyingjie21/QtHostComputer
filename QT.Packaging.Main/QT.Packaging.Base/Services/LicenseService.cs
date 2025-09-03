@@ -51,7 +51,7 @@ EeUKWtXSavHQQ7o80ZyuZG88gm7eOCC/K5zGMPB25nVYsrX/29GepFr43GQdTuPi
 iwIDAQAB
 -----END PUBLIC KEY-----");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //AlertHelper.ShowAlertAsync("注册失败", "注册码无效，请重新注册！", "OK");
                 Environment.Exit(0); // 退出程序

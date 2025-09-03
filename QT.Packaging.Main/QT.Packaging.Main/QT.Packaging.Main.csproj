@@ -1,26 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net8.0-android</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    
+    <!-- Android 平台专用配置 -->
+    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-android'">21</SupportedOSPlatformVersion>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- 资源文件 - 仅桌面平台 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  <!-- 通用包引用 -->
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
-	<PackageReference Include="SukiUI" Version="6.0.2" />
+    <PackageReference Include="SukiUI" Version="6.0.2" />
+    <PackageReference Include="Material.Icons.Avalonia" Version="2.4.1" />
+  </ItemGroup>
+
+  <!-- 桌面平台专用包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.0" />
-    <PackageReference Include="Meadow.Foundation" Version="1.2" />
+    <!-- Meadow IoT 包 - 仅在需要时启用 -->
+    <!-- <PackageReference Include="Meadow.Foundation" Version="1.2" />
     <PackageReference Include="Meadow.Linux" Version="1.2" />
-    <PackageReference Include="Meadow.Windows" Version="1.2" />
+    <PackageReference Include="Meadow.Windows" Version="1.2" /> -->
+  </ItemGroup>
+
+  <!-- Android 平台专用包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+    <!-- Android 上不需要 Meadow 包，因为它们是桌面/IoT 专用 -->
   </ItemGroup>
 
   <ItemGroup>

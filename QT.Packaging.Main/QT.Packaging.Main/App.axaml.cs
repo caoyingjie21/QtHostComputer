@@ -5,9 +5,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 
-using Meadow;
-using Meadow.Pinouts;
-
 using QT.Packaging.Main.ViewModels;
 using QT.Packaging.Main.Views;
 using QT.Packaging.Base;
@@ -16,7 +13,7 @@ using System;
 
 namespace QT.Packaging.Main;
 
-public partial class App : AvaloniaMeadowApplication<Linux<RaspberryPi>>
+public partial class App : Application
 {
     private ModuleLogger? _logger;
 
@@ -26,8 +23,6 @@ public partial class App : AvaloniaMeadowApplication<Linux<RaspberryPi>>
         
         // 初始化服务提供者
         InitializeServices();
-        
-        LoadMeadowOS();
     }
 
     /// <summary>
@@ -75,23 +70,7 @@ public partial class App : AvaloniaMeadowApplication<Linux<RaspberryPi>>
         }
     }
 
-    public override Task InitializeMeadow()
-    {
-        var r = Resolver.Services.Get<IMeadowDevice>();
 
-        if (r == null)
-        {
-            Resolver.Log.Info("IMeadowDevice is null");
-            _logger?.LogWarning("IMeadowDevice is null");
-        }
-        else
-        {
-            Resolver.Log.Info($"IMeadowDevice is {r.GetType().Name}");
-            _logger?.LogInfo($"IMeadowDevice is {r.GetType().Name}");
-        }
-
-        return Task.CompletedTask;
-    }
 
     public override void OnFrameworkInitializationCompleted()
     {

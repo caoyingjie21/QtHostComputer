@@ -10,7 +10,11 @@ namespace QT.Packaging.Base.PackagingDbContext
         public ApplicationDbContext(string dbPath)
         {
             _dbPath = dbPath;
-            Directory.CreateDirectory(Path.GetDirectoryName(_dbPath));
+            var directoryPath = Path.GetDirectoryName(_dbPath);
+            if (!string.IsNullOrEmpty(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
             Database.EnsureCreated();
         }
 

@@ -14,9 +14,22 @@ namespace QT.Packaging.Robot
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        {
+            var builder = AppBuilder.Configure<App>();
+
+#if ANDROID
+            // Android 平台配置
+            return builder
+                .UseAndroid()
+                .WithInterFont()
+                .LogToTrace();
+#else
+            // 桌面平台配置
+            return builder
                 .UsePlatformDetect()
                 .WithInterFont()
                 .LogToTrace();
+#endif
+        }
     }
 }

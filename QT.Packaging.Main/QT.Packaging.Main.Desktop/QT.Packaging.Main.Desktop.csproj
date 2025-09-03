@@ -16,5 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QT.Packaging.Main\QT.Packaging.Main.csproj" />
+    <!-- 确保可以访问所有服务和功能 -->
+    <ProjectReference Include="..\QT.Packaging.Base\QT.Packaging.Base.csproj" />
   </ItemGroup>
 </Project>
