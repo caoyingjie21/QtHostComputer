@@ -8,6 +8,8 @@ using SukiUI;
 using Avalonia.Styling;
 using Avalonia.Media;
 using Avalonia;
+using Avalonia.VisualTree;
+using System;
 
 namespace QT.Packaging.Main.Views;
 
@@ -24,6 +26,13 @@ public partial class MainView : UserControl
         
         // 设置按钮 hover 效果
         SetupThemeButtonHover();
+
+        // Android 平台：订阅主题变化并同步更新根视图背景
+        if (OperatingSystem.IsAndroid())
+        {
+            AttachedToVisualTree += OnAttachedToVisualTree;
+            DetachedFromVisualTree += OnDetachedFromVisualTree;
+        }
     }
 
     /// <summary>
@@ -46,6 +55,12 @@ public partial class MainView : UserControl
         
         // 切换 SukiUI 主题
         ToggleSukiTheme();
+
+        // Android 平台：立即同步根视图背景
+        if (OperatingSystem.IsAndroid())
+        {
+            UpdateAndroidRootBackground();
+        }
     }
 
     /// <summary>
@@ -96,6 +111,47 @@ public partial class MainView : UserControl
         {
             System.Diagnostics.Debug.WriteLine($"切换主题时出错: {ex.Message}");
         }
+    }
+
+    private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+    {
+        // 初始同步一次背景
+        UpdateAndroidRootBackground();
+
+        // 订阅主题变化
+        this.PropertyChanged += OnSelfPropertyChanged;
+    }
+
+    private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+    {
+        this.PropertyChanged -= OnSelfPropertyChanged;
+    }
+
+    private void OnSelfPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == ThemeVariantScope.ActualThemeVariantProperty)
+        {
+            if (OperatingSystem.IsAndroid())
+            {
+                UpdateAndroidRootBackground();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Android 平台：根据当前主题设置根视图背景色
+    /// </summary>
+    private void UpdateAndroidRootBackground()
+    {
+        if (!OperatingSystem.IsAndroid())
+        {
+            return;
+        }
+
+        var isDark = ActualThemeVariant == ThemeVariant.Dark;
+        Background = isDark
+            ? new SolidColorBrush(Color.FromRgb(0x12, 0x12, 0x12))
+            : new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
     }
 
     /// <summary>

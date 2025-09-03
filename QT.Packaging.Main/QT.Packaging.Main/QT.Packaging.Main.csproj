@@ -41,9 +41,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QT.Packaging.Base\QT.Packaging.Base.csproj" />
-    <ProjectReference Include="..\QT.Packaging.Robot\QT.Packaging.Robot.csproj" />
-    <ProjectReference Include="..\QT.Packaging.SealingDetection\QT.Packaging.SealingDetection.csproj" />
-    <ProjectReference Include="..\QT.Packaging.Shared\QT.Packaging.Shared.csproj" />
-    <ProjectReference Include="..\QT.Packaging.VinsionPrinter\QT.Packaging.VinsionPrinter.csproj" />
   </ItemGroup>
 </Project>
