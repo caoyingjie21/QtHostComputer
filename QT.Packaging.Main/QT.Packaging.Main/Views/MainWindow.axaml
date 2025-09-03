@@ -1,12 +1,84 @@
-<Window xmlns="https://github.com/avaloniaui"
+<sukiUi:SukiWindow BackgroundStyle="Gradient"
+        xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:QT.Packaging.Main.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:sukiUi="clr-namespace:SukiUI.Controls;assembly=SukiUI"
         xmlns:views="clr-namespace:QT.Packaging.Main.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
         x:Class="QT.Packaging.Main.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="QT.Packaging.Main">
-        <views:MainView />
-</Window>
+        Title="桥头产线管理系统"
+        Width="1024" Height="768"
+        WindowState="Normal"
+        CanResize="True">
+
+
+
+    <!-- 对话框主机 -->
+    <sukiUi:SukiWindow.Hosts>
+        <sukiUi:SukiDialogHost Name="DialogHost"/>
+    </sukiUi:SukiWindow.Hosts>
+
+    <!-- 标题栏右侧控件 -->
+    <sukiUi:SukiWindow.RightWindowTitleBarControls>
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+            <!-- 设置按钮 -->
+            <Button Name="SettingsButton" 
+                    BorderThickness="0"
+                    Padding="4"
+                    Width="24"
+                    Height="24"
+                    CornerRadius="12"
+                    ToolTip.Tip="设置"
+                    Click="SettingsButton_Click">
+                
+                <!-- 设置 Flyout 属性 -->
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="关于作者" Click="AboutAuthor_Click">
+                            <MenuItem.Icon>
+                                <materialIcons:MaterialIcon Kind="Person" 
+                                                            Width="16" Height="16"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Foreground="{DynamicResource SukiText}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        
+                        <MenuItem Header="版权信息" Click="CopyrightInfo_Click">
+                            <MenuItem.Icon>
+                                <materialIcons:MaterialIcon Kind="Copyright" 
+                                                            Width="16" Height="16"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Foreground="{DynamicResource SukiText}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        
+                        <MenuItem Header="系统信息" Click="SystemInfo_Click">
+                            <MenuItem.Icon>
+                                <materialIcons:MaterialIcon Kind="Info" 
+                                                            Width="16" Height="16"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Foreground="{DynamicResource SukiText}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuFlyout>
+                </Button.Flyout>
+                
+                <!-- 按钮内容 -->
+                <materialIcons:MaterialIcon Kind="Settings"
+                                            Width="16" Height="16" 
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource SukiText}"/>
+            </Button>
+        </StackPanel>
+    </sukiUi:SukiWindow.RightWindowTitleBarControls>
+
+	<views:MainView />
+</sukiUi:SukiWindow>

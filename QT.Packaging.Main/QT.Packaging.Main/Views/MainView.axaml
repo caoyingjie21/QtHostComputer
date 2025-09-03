@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:QT.Packaging.Main.ViewModels"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="QT.Packaging.Main.Views.MainView"
              x:DataType="vm:MainViewModel">
@@ -12,5 +13,38 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+  <Grid>
+    <!-- 主题切换按钮 - 右上角 -->
+    <Button Name="ThemeToggleButton"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Margin="20"
+            Width="40"
+            Height="40"
+            CornerRadius="20"
+            BorderThickness="2"
+            BorderBrush="{DynamicResource SukiControlBorderBrush}"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Padding="0"
+            ToolTip.Tip="切换主题"
+            Click="ThemeToggleButton_Click">
+      
+
+      
+      <!-- 图标容器，确保居中 -->
+      <Grid>
+        <materialIcons:MaterialIcon Name="ThemeIcon"
+                                    Kind="WbSunny"
+                                    Width="24" 
+                                    Height="24"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource SukiText}" />
+      </Grid>
+    </Button>
+    
+    <!-- 主要内容区域 -->
+    <ContentPresenter />
+  </Grid>
 </UserControl>
