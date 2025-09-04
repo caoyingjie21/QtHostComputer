@@ -23,6 +23,14 @@ namespace QT.Packaging.Base.Extensions
             services.AddSingleton<IPlatformService, PlatformService>();
             services.AddSingleton<LicenseService>();
             
+            // 注册模块服务
+            services.AddSingleton<ModuleService>(provider =>
+            {
+                var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+                    "QT.Packaging", "modules.db");
+                return new ModuleService(dbPath);
+            });
+            
             // 注册 MQTT 主机服务（作为后台服务）
             services.AddSingleton<MqttHostService>(provider =>
             {

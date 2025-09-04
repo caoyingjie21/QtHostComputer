@@ -33,7 +33,7 @@ public partial class MainView : UserControl
         // 设置初始主题图标
         UpdateThemeIcon();
         
-        // 3D样式现在通过XAML样式类应用，主题切换时需要更新样式类
+        // 主题切换时需要更新样式类
         UpdateButtonThemeClasses();
 
         // Android 平台：订阅主题变化并同步更新根视图背景
@@ -43,8 +43,27 @@ public partial class MainView : UserControl
             DetachedFromVisualTree += OnDetachedFromVisualTree;
         }
 
-        // 初始构建一次面包屑（仅显示“主页”）
+        // 设置默认主页内容
+        if (MainContentHost != null)
+        {
+            if (MainContentHost.Content == null)
+            {
+                MainContentHost.Content = new Views.HomeView();
+            }
+        }
+
+        // 初始构建一次面包屑
         RebuildBreadcrumbs();
+
+        // 默认应用暗黑主题
+        if (!_isDarkTheme)
+        {
+            _isDarkTheme = true;
+            UpdateThemeIcon();
+            UpdateButtonThemeClasses();
+            RebuildBreadcrumbs();
+            ToggleSukiTheme();
+        }
     }
 
     private void NavigateTo(Control? view)
@@ -112,18 +131,21 @@ public partial class MainView : UserControl
         if (BreadcrumbBar == null) return;
         BreadcrumbBar.Children.Clear();
 
-        // 构建一个列表：根(首页) + 栈中的页面 + 当前页面
         var items = new List<(string title, Control? view)>();
         items.Add(("主页", null));
 
-        // 注意：栈是后进先出，我们需要从底到顶显示
         var stackArray = _navigationStack.ToArray();
         for (int i = stackArray.Length - 1; i >= 0; i--)
         {
             var v = stackArray[i];
             if (v != null)
             {
-                items.Add((GetViewTitle(v), v));
+                var title = GetViewTitle(v);
+                // 主页只用左侧图标表示，避免在面包屑中再添加“主页”文字
+                if (!string.Equals(title, "主页", StringComparison.Ordinal))
+                {
+                    items.Add((title, v));
+                }
             }
         }
 
@@ -131,63 +153,124 @@ public partial class MainView : UserControl
         var current = MainContentHost?.Content as Control;
         if (current != null)
         {
-            items.Add((GetViewTitle(current), current));
+            var currentTitle = GetViewTitle(current);
+            // 当前为主页时不追加文字项，只保留左侧主页图标
+            if (!string.Equals(currentTitle, "主页", StringComparison.Ordinal))
+            {
+                items.Add((currentTitle, current));
+            }
         }
 
         for (int i = 0; i < items.Count; i++)
         {
             var (title, view) = items[i];
 
-            var crumb = new TextBlock
-            {
-                Text = title,
-                Margin = new Thickness(0, 0, 0, 0),
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 18,
-                FontWeight = FontWeight.SemiBold
-            };
-            crumb.Cursor = new Cursor(StandardCursorType.Hand);
+            Control crumbElement;
 
-            // hover 效果：加下划线 + 变换为强调色
-            // 根据主题设置默认颜色和强调色
-            var normalBrush = _isDarkTheme 
-                ? new SolidColorBrush(Colors.White) 
-                : new SolidColorBrush(Colors.Black);
-            var accentBrush = new SolidColorBrush(Colors.DeepSkyBlue);
-            
-            // 设置初始前景色
-            crumb.Foreground = normalBrush;
-            crumb.PointerEntered += (_, __) =>
+            // 主页使用图标，其他页面使用文字
+            if (title == "主页")
             {
-                crumb.TextDecorations = TextDecorations.Underline;
-                crumb.Foreground = accentBrush;
-            };
-            crumb.PointerExited += (_, __) =>
-            {
-                crumb.TextDecorations = null;
-                crumb.Foreground = normalBrush;
-            };
-
-            // 点击导航
-            crumb.PointerReleased += (_, __) =>
-            {
-                if (view == null)
+                var homeIcon = new Material.Icons.Avalonia.MaterialIcon
                 {
+                    Kind = Material.Icons.MaterialIconKind.Package,
+                    Width = 30,
+                    Height = 30,
+                    Margin = new Thickness(0, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // 根据主题设置图标颜色
+                var normalBrush = _isDarkTheme 
+                    ? new SolidColorBrush(Colors.White) 
+                    : new SolidColorBrush(Colors.Black);
+                var accentBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+                
+                homeIcon.Foreground = normalBrush;
+                homeIcon.Cursor = new Cursor(StandardCursorType.Hand);
+
+                // hover 效果
+                homeIcon.PointerEntered += (_, __) =>
+                {
+                    homeIcon.Foreground = accentBrush;
+                };
+                homeIcon.PointerExited += (_, __) =>
+                {
+                    homeIcon.Foreground = normalBrush;
+                };
+
+                // 点击导航
+                homeIcon.PointerReleased += (_, __) =>
+                {
+                    // 点击主页图标：清空栈并直接加载 HomeView
                     _navigationStack.Clear();
-                    MainContentHost.Content = null;
-                }
-                else
-                {
-                    while (_navigationStack.Count > 0 && !ReferenceEquals(_navigationStack.Peek(), view))
+                    if (MainContentHost != null)
                     {
-                        _navigationStack.Pop();
+                        MainContentHost.Content = new Views.HomeView();
                     }
-                    MainContentHost.Content = view;
-                }
-                RebuildBreadcrumbs();
-            };
+                    RebuildBreadcrumbs();
+                };
 
-            BreadcrumbBar.Children.Add(crumb);
+                crumbElement = homeIcon;
+            }
+            else
+            {
+                var crumb = new TextBlock
+                {
+                    Text = title,
+                    Margin = new Thickness(0, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 18,
+                    FontWeight = FontWeight.SemiBold
+                };
+                crumb.Cursor = new Cursor(StandardCursorType.Hand);
+
+                // hover 效果：加下划线 + 变换为强调色
+                // 根据主题设置默认颜色和强调色
+                var normalBrush = _isDarkTheme 
+                    ? new SolidColorBrush(Colors.White) 
+                    : new SolidColorBrush(Colors.Black);
+                var accentBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+                
+                // 设置初始前景色
+                crumb.Foreground = normalBrush;
+                crumb.PointerEntered += (_, __) =>
+                {
+                    crumb.TextDecorations = TextDecorations.Underline;
+                    crumb.Foreground = accentBrush;
+                };
+                crumb.PointerExited += (_, __) =>
+                {
+                    crumb.TextDecorations = null;
+                    crumb.Foreground = normalBrush;
+                };
+
+                // 点击导航
+                crumb.PointerReleased += (_, __) =>
+                {
+                    if (view == null)
+                    {
+                        // 返回主页：清空栈并直接加载 HomeView
+                        _navigationStack.Clear();
+                        if (MainContentHost != null)
+                        {
+                            MainContentHost.Content = new Views.HomeView();
+                        }
+                    }
+                    else
+                    {
+                        while (_navigationStack.Count > 0 && !ReferenceEquals(_navigationStack.Peek(), view))
+                        {
+                            _navigationStack.Pop();
+                        }
+                        MainContentHost.Content = view;
+                    }
+                    RebuildBreadcrumbs();
+                };
+
+                crumbElement = crumb;
+            }
+
+            BreadcrumbBar.Children.Add(crumbElement);
 
             if (i < items.Count - 1)
             {
@@ -209,6 +292,7 @@ public partial class MainView : UserControl
 
     private string GetViewTitle(Control? view)
     {
+        if (view is HomeView) return "主页";
         if (view is ModulesView) return "功能模块";
         return view?.GetType().Name ?? "主页";
     }

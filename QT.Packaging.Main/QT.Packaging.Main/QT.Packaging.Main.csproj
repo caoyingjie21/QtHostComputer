@@ -19,7 +19,7 @@
     <PackageReference Include="Avalonia" Version="11.3.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="SukiUI" Version="6.0.2" />
     <PackageReference Include="Material.Icons.Avalonia" Version="2.4.1" />
   </ItemGroup>
@@ -41,5 +41,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QT.Packaging.Base\QT.Packaging.Base.csproj" />
+    <ProjectReference Include="..\QT.Packaging.Robot\QT.Packaging.Robot\QT.Packaging.Robot.csproj" />
+    <!--<ProjectReference Include="..\QT.Packaging.SealDetection\QT.Packaging.SealDetection\QT.Packaging.SealDetection.csproj" />-->
+    <ProjectReference Include="..\QT.Packaging.VisionPrinter\QT.Packaging.VisionPrinter\QT.Packaging.VisionPrinter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Modules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

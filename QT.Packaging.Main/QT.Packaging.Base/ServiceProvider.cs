@@ -120,6 +120,11 @@ namespace QT.Packaging.Base
         public static MqttHostService MqttHostService => GetService<MqttHostService>();
 
         /// <summary>
+        /// 获取模块服务
+        /// </summary>
+        public static ModuleService ModuleService => GetService<ModuleService>();
+
+        /// <summary>
         /// 启动所有后台服务
         /// </summary>
         /// <returns></returns>

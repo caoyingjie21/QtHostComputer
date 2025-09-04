@@ -1,0 +1,29 @@
+[
+  {
+    "Id": "00000000-0000-0000-0000-000000000001",
+    "Name": "机器人模块",
+    "Description": "控制机器人操作和视觉识别",
+    "Assembly": "QT.Packaging.Robot.dll",
+    "ViewModelType": "QT.Packaging.Robot.ViewModels.MainViewModel",
+    "ViewType": "QT.Packaging.Robot.Views.MainView",
+    "IsPublished": true
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000002",
+    "Name": "视觉打印模块",
+    "Description": "控制视觉识别和打印操作",
+    "Assembly": "QT.Packaging.VisionPrinter.dll",
+    "ViewModelType": "QT.Packaging.VisionPrinter.ViewModels.MainViewModel",
+    "ViewType": "QT.Packaging.VisionPrinter.Views.MainView",
+    "IsPublished": true
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000003",
+    "Name": "密封检测模块",
+    "Description": "检测包装密封性和完整性",
+    "Assembly": "QT.Packaging.SealDetection.dll",
+    "ViewModelType": "QT.Packaging.SealDetection.ViewModels.MainViewModel",
+    "ViewType": "QT.Packaging.SealDetection.Views.MainView",
+    "IsPublished": true
+  }
+]

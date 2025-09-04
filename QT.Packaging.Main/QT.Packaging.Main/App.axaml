@@ -7,8 +7,8 @@
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
-		<sukiUi:SukiTheme Locale="zh-CN"  ThemeColor="Blue"/>
-		<materialIcons:MaterialIconStyles />
+		<sukiUi:SukiTheme Locale="zh-CN"/>
+		<materialIcons:MaterialIconStyles/>
 		<!-- 添加1024x768适配样式 -->
     </Application.Styles>
 </Application>

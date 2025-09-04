@@ -2,20 +2,125 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:QT.Packaging.Main.ViewModels"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:suki="https://github.com/kikipoulet/SukiUI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="QT.Packaging.Main.Views.ModulesView">
+             x:Class="QT.Packaging.Main.Views.ModulesView"
+             x:DataType="vm:ModulesViewModel">
 
-  <Grid RowDefinitions="Auto,*">
+  <Design.DataContext>
+    <vm:ModulesViewModel />
+  </Design.DataContext>
 
-    <ScrollViewer Grid.Row="1">
-      <UniformGrid Columns="2" Rows="0" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-        <Button Content="模块A" Height="48" Margin="6"/>
-        <Button Content="模块B" Height="48" Margin="6"/>
-        <Button Content="模块C" Height="48" Margin="6"/>
-        <Button Content="模块D" Height="48" Margin="6"/>
-      </UniformGrid>
-    </ScrollViewer>
+  <Grid>
+    <Grid RowDefinitions="Auto,*">
+      <ScrollViewer Grid.Row="1">
+      <ItemsControl ItemsSource="{Binding Modules}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+                        <!-- 使用 Panel 替代 Grid，并根据可用性显示不同内容 -->
+            <Panel Width="160" Height="160" Margin="15">
+              
+              <!-- 模块基础内容（始终显示，作为背景） -->
+              <Border Width="160"
+                      Height="160"
+                      CornerRadius="16"
+                      Background="{DynamicResource SukiCardBackground}"
+                      BorderBrush="{DynamicResource SukiControlBorderBrush}"
+                      BorderThickness="1">
+                
+                <StackPanel Orientation="Vertical" 
+                           Spacing="12"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center">
+                  <materialIcons:MaterialIcon Kind="{Binding Icon}"
+                                              Width="64"
+                                              Height="64"
+                                              HorizontalAlignment="Center"
+                                              Foreground="{DynamicResource SukiText}" />
+                  
+                  <TextBlock Text="{Binding Name}"
+                             FontSize="14"
+                             FontWeight="Medium"
+                             HorizontalAlignment="Center"
+                             TextAlignment="Center"
+                             TextWrapping="Wrap"
+                             Foreground="{DynamicResource SukiText}" />
+                </StackPanel>
+              </Border>
+              
+              <!-- 可用模块的点击按钮（透明覆盖） -->
+              <Button IsVisible="{Binding IsAssemblyAvailable}"
+                      Command="{Binding $parent[UserControl].DataContext.OpenModuleCommand}"
+                      CommandParameter="{Binding}"
+                      Width="160"
+                      Height="160"
+                      CornerRadius="16"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      Cursor="Hand">
+                
+                <Button.Styles>
+                  <Style Selector="Button:pointerover">
+                    <Setter Property="Background" Value="#20000000"/>
+                  </Style>
+                </Button.Styles>
+              </Button>
+              
+              <!-- 不可用模块的蒙版按钮 -->
+              <Button IsVisible="{Binding !IsAssemblyAvailable}"
+                      Command="{Binding $parent[UserControl].DataContext.ShowPurchaseDialogCommand}"
+                      CommandParameter="{Binding}"
+                      Width="160"
+                      Height="160"
+                      CornerRadius="16"
+                      Background="#C0000000"
+                      BorderThickness="0"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      Cursor="Hand">
+                
+                <Button.Styles>
+                  <Style Selector="Button:pointerover">
+                    <Setter Property="Background" Value="#A0000000"/>
+                  </Style>
+                </Button.Styles>
+                
+                <StackPanel Orientation="Vertical" Spacing="12">
+                  <!-- 锁图标背景圆圈 -->
+                  <Border Background="#60FFFFFF"
+                          CornerRadius="40"
+                          Width="80"
+                          Height="80"
+                          HorizontalAlignment="Center"
+                          BoxShadow="0 4 12 #40000000">
+                    <materialIcons:MaterialIcon Kind="Lock"
+                                                Width="52"
+                                                Height="52"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Foreground="White" />
+                  </Border>
+                </StackPanel>
+              </Button>
+              
+            </Panel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+    
+    <!-- SukiUI Dialog Host -->
+    <suki:SukiDialogHost Manager="{Binding DialogManager}" />
   </Grid>
 </UserControl>
-

@@ -1,0 +1,155 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:QT.Packaging.Main.ViewModels"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="QT.Packaging.Main.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+
+  <Design.DataContext>
+    <vm:HomeViewModel />
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,Auto,*" Margin="20">
+
+    <!-- 顶部：柔性调整 / 扫码与配置操作条 -->
+    <Grid Grid.Row="1" Margin="0,0,0,25">
+      <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="条码:" VerticalAlignment="Center" FontSize="18" Foreground="{DynamicResource SukiText}"/>
+        <TextBox x:Name="ScanTextBox"
+                 Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"
+				 FontSize="16"
+				 FontWeight="Bold"
+                 Watermark="请扫描条码，回车提交"
+                 Width="600">
+          <TextBox.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding SubmitScanCommand}" />
+          </TextBox.KeyBindings>
+        </TextBox>
+        <Button Command="{Binding LoadConfigCommand}" Height="50" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <materialIcons:MaterialIcon Kind="FolderOpen" Width="16" Height="16"/>
+            <TextBlock Text="载入配置"/>
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding SaveConfigCommand}" Height="50" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <materialIcons:MaterialIcon Kind="ContentSave" Width="16" Height="16"/>
+            <TextBlock Text="保存配置"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+
+      <!-- 强制覆盖 SukiUI 输入框模板高度，确保为 50px -->
+      <Grid.Styles>
+        <Style Selector="TextBox#ScanTextBox">
+          <Setter Property="Height" Value="60"/>
+		  <Setter Property="Margin" Value="0,5,0,0"/>
+          <Setter Property="Padding" Value="14,14"/>
+        </Style>
+      </Grid.Styles>
+    </Grid>
+
+    <!-- 仪表盘 2x2 布局（四块），左右结构显示：左配置，右数据 -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+      <!-- 1. 产线产量 -->
+      <Border Grid.Row="0" Grid.Column="0" Height="150"
+              CornerRadius="12"
+              Background="{DynamicResource SukiCardBackground}"
+              BorderBrush="{DynamicResource SukiControlBorderBrush}"
+              BorderThickness="1" Padding="16">
+        <Grid ColumnDefinitions="7*,3*" ColumnSpacing="12">
+          <!-- 左侧配置要点 -->
+          <StackPanel Grid.Column="0" Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <materialIcons:MaterialIcon Kind="Factory" Width="18" Height="18" Foreground="{DynamicResource SukiText}"/>
+              <TextBlock Text="产线产量" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}"/>
+            </StackPanel>
+            <TextBlock Text="目标/小时：{Binding LineTargetPerHour}" Foreground="{DynamicResource SukiText}"/>
+            <TextBlock Text="速度因子：{Binding SpeedFactor, StringFormat=F2}" Foreground="{DynamicResource SukiText}"/>
+          </StackPanel>
+          <!-- 右侧数据展示 -->
+          <TextBlock Grid.Column="1" Text="{Binding LineOutput}" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SukiText}"/>
+        </Grid>
+      </Border>
+
+      <!-- 2. 机器人抓取数量 -->
+      <Border Grid.Row="0" Grid.Column="1" Height="150"
+              CornerRadius="12"
+              Background="{DynamicResource SukiCardBackground}"
+              BorderBrush="{DynamicResource SukiControlBorderBrush}"
+              BorderThickness="1" Padding="16">
+        <Grid ColumnDefinitions="7*,3*" ColumnSpacing="12">
+          <StackPanel Grid.Column="0" Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <materialIcons:MaterialIcon Kind="Robot" Width="18" Height="18" Foreground="{DynamicResource SukiText}"/>
+              <TextBlock Text="机器人抓取" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}"/>
+            </StackPanel>
+            <TextBlock Text="夹爪类型：{Binding RobotGripperType}" Foreground="{DynamicResource SukiText}"/>
+            <TextBlock Text="速度因子：{Binding SpeedFactor, StringFormat=F2}" Foreground="{DynamicResource SukiText}"/>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Text="{Binding RobotPickCount}" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SukiText}"/>
+        </Grid>
+      </Border>
+
+      <!-- 3. 喷码数量 -->
+      <Border Grid.Row="1" Grid.Column="0" Height="150"
+              CornerRadius="12"
+              Background="{DynamicResource SukiCardBackground}"
+              BorderBrush="{DynamicResource SukiControlBorderBrush}"
+              BorderThickness="1" Padding="16">
+        <Grid ColumnDefinitions="7*,3*" ColumnSpacing="12">
+          <StackPanel Grid.Column="0" Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="Printer3d" Width="18" Height="18" Foreground="{DynamicResource SukiText}"/>
+              <TextBlock Text="喷码数量" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}"/>
+            </StackPanel>
+            <TextBlock Text="打印模式：{Binding PrinterMode}" Foreground="{DynamicResource SukiText}"/>
+            <TextBlock Text="最近任务：{Binding LastPrintJob}" Foreground="{DynamicResource SukiText}"/>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Text="{Binding PrintCount}" FontSize="36" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SukiText}"/>
+        </Grid>
+      </Border>
+
+      <!-- 4. 封口检测参数 -->
+      <Border Grid.Row="1" Grid.Column="1" Height="150"
+              CornerRadius="12"
+              Background="{DynamicResource SukiCardBackground}"
+              BorderBrush="{DynamicResource SukiControlBorderBrush}"
+              BorderThickness="1" Padding="16">
+        <Grid ColumnDefinitions="7*,3*" ColumnSpacing="12">
+          <StackPanel Grid.Column="0" Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="ShieldCheck" Width="18" Height="18" Foreground="{DynamicResource SukiText}"/>
+              <TextBlock Text="封口检测参数" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}"/>
+            </StackPanel>
+            <TextBlock Text="阈值：{Binding SealThreshold}" Foreground="{DynamicResource SukiText}"/>
+            <TextBlock Text="曝光：{Binding ExposureMs}ms" Foreground="{DynamicResource SukiText}"/>
+            <TextBlock Text="ROI：{Binding RoiDisplay}" Foreground="{DynamicResource SukiText}"/>
+          </StackPanel>
+          <Grid Grid.Column="1" ColumnDefinitions="*,Auto,*,Auto,*" VerticalAlignment="Center">
+            <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Center">
+              <TextBlock Text="检测" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+              <TextBlock Text="{Binding SealInspectedCount}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="|" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource SukiControlBorderBrush}"/>
+
+            <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Center">
+              <TextBlock Text="通过" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+              <TextBlock Text="{Binding SealPassCount}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Grid.Column="3" Text="|" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource SukiControlBorderBrush}"/>
+
+            <StackPanel Grid.Column="4" Orientation="Vertical" HorizontalAlignment="Center">
+              <TextBlock Text="不通过" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+              <TextBlock Text="{Binding SealFailCount}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource SukiText}" HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>
+
