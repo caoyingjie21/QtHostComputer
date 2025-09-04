@@ -10,12 +10,21 @@ using Avalonia.Media;
 using Avalonia;
 using Avalonia.VisualTree;
 using System;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media; 
+using QT.Packaging.Base;
+using SukiUI.Dialogs;
+using System.Collections.Generic;
+using Avalonia.Layout;
+using Avalonia.Input;
 
 namespace QT.Packaging.Main.Views;
 
 public partial class MainView : UserControl
 {
     private bool _isDarkTheme = false;
+    private readonly Stack<Control?> _navigationStack = new();
 
     public MainView()
     {
@@ -24,14 +33,191 @@ public partial class MainView : UserControl
         // 设置初始主题图标
         UpdateThemeIcon();
         
-        // 设置按钮 hover 效果
-        SetupThemeButtonHover();
+        // 3D样式现在通过XAML样式类应用，主题切换时需要更新样式类
+        UpdateButtonThemeClasses();
 
         // Android 平台：订阅主题变化并同步更新根视图背景
         if (OperatingSystem.IsAndroid())
         {
             AttachedToVisualTree += OnAttachedToVisualTree;
             DetachedFromVisualTree += OnDetachedFromVisualTree;
+        }
+
+        // 初始构建一次面包屑（仅显示“主页”）
+        RebuildBreadcrumbs();
+    }
+
+    private void NavigateTo(Control? view)
+    {
+        if (MainContentHost == null) return;
+
+        // 将当前内容入栈
+        var current = MainContentHost.Content as Control;
+        if (current != null)
+        {
+            _navigationStack.Push(current);
+        }
+        MainContentHost.Content = view;
+        RebuildBreadcrumbs();
+    }
+
+    private void GoBack()
+    {
+        if (MainContentHost == null) return;
+        if (_navigationStack.Count == 0)
+        {
+            MainContentHost.Content = null;
+            RebuildBreadcrumbs();
+            return;
+        }
+        var previous = _navigationStack.Pop();
+        MainContentHost.Content = previous;
+        RebuildBreadcrumbs();
+    }
+
+    private void ExitButton_Click(object? sender, RoutedEventArgs e)
+    {
+        var lifetime = Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        if (lifetime != null)
+        {
+            lifetime.Shutdown();
+            return;
+        }
+
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is Window window)
+        {
+            window.Close();
+            return;
+        }
+
+        Environment.Exit(0);
+    }
+
+    private void MenuButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (MainContentHost == null) return;
+
+        if (MainContentHost.Content is ModulesView)
+        {
+            GoBack();
+            return;
+        }
+
+        NavigateTo(new ModulesView());
+    }
+
+    private void RebuildBreadcrumbs()
+    {
+        if (BreadcrumbBar == null) return;
+        BreadcrumbBar.Children.Clear();
+
+        // 构建一个列表：根(首页) + 栈中的页面 + 当前页面
+        var items = new List<(string title, Control? view)>();
+        items.Add(("主页", null));
+
+        // 注意：栈是后进先出，我们需要从底到顶显示
+        var stackArray = _navigationStack.ToArray();
+        for (int i = stackArray.Length - 1; i >= 0; i--)
+        {
+            var v = stackArray[i];
+            if (v != null)
+            {
+                items.Add((GetViewTitle(v), v));
+            }
+        }
+
+        // 当前视图
+        var current = MainContentHost?.Content as Control;
+        if (current != null)
+        {
+            items.Add((GetViewTitle(current), current));
+        }
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            var (title, view) = items[i];
+
+            var crumb = new TextBlock
+            {
+                Text = title,
+                Margin = new Thickness(0, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 18,
+                FontWeight = FontWeight.SemiBold
+            };
+            crumb.Cursor = new Cursor(StandardCursorType.Hand);
+
+            // hover 效果：加下划线 + 变换为强调色
+            // 根据主题设置默认颜色和强调色
+            var normalBrush = _isDarkTheme 
+                ? new SolidColorBrush(Colors.White) 
+                : new SolidColorBrush(Colors.Black);
+            var accentBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+            
+            // 设置初始前景色
+            crumb.Foreground = normalBrush;
+            crumb.PointerEntered += (_, __) =>
+            {
+                crumb.TextDecorations = TextDecorations.Underline;
+                crumb.Foreground = accentBrush;
+            };
+            crumb.PointerExited += (_, __) =>
+            {
+                crumb.TextDecorations = null;
+                crumb.Foreground = normalBrush;
+            };
+
+            // 点击导航
+            crumb.PointerReleased += (_, __) =>
+            {
+                if (view == null)
+                {
+                    _navigationStack.Clear();
+                    MainContentHost.Content = null;
+                }
+                else
+                {
+                    while (_navigationStack.Count > 0 && !ReferenceEquals(_navigationStack.Peek(), view))
+                    {
+                        _navigationStack.Pop();
+                    }
+                    MainContentHost.Content = view;
+                }
+                RebuildBreadcrumbs();
+            };
+
+            BreadcrumbBar.Children.Add(crumb);
+
+            if (i < items.Count - 1)
+            {
+                var sep = new TextBlock 
+                { 
+                    Text = ">", 
+                    Margin = new Thickness(8, 0, 8, 0), 
+                    VerticalAlignment = VerticalAlignment.Center, 
+                    FontSize = 18, 
+                    FontWeight = FontWeight.SemiBold,
+                    Foreground = _isDarkTheme 
+                        ? new SolidColorBrush(Colors.White) 
+                        : new SolidColorBrush(Colors.Black)
+                };
+                BreadcrumbBar.Children.Add(sep);
+            }
+        }
+    }
+
+    private string GetViewTitle(Control? view)
+    {
+        if (view is ModulesView) return "功能模块";
+        return view?.GetType().Name ?? "主页";
+    }
+
+    private void SettingsButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Flyout is FlyoutBase flyout)
+        {
+            flyout.ShowAt(button);
         }
     }
 
@@ -46,12 +232,11 @@ public partial class MainView : UserControl
         // 更新图标和背景
         UpdateThemeIcon();
         
-        // 更新按钮背景以匹配新主题
-        if (ThemeToggleButton != null)
-        {
-            var newBackground = Create3DBackground(false, false);
-            ThemeToggleButton.Background = newBackground;
-        }
+        // 更新按钮主题样式类
+        UpdateButtonThemeClasses();
+        
+        // 更新面包屑主题色
+        RebuildBreadcrumbs();
         
         // 切换 SukiUI 主题
         ToggleSukiTheme();
@@ -60,6 +245,26 @@ public partial class MainView : UserControl
         if (OperatingSystem.IsAndroid())
         {
             UpdateAndroidRootBackground();
+        }
+    }
+
+    private void UpdateButtonThemeClasses()
+    {
+        var darkThemeClass = "DarkTheme";
+        
+        // 根据当前主题状态添加或移除 DarkTheme 样式类
+        if (_isDarkTheme)
+        {
+            ThemeToggleButton?.Classes.Add(darkThemeClass);
+            SettingsButton?.Classes.Add(darkThemeClass);
+            MenuButton?.Classes.Add(darkThemeClass);
+            // 退出按钮已经是危险色，不需要暗黑主题类
+        }
+        else
+        {
+            ThemeToggleButton?.Classes.Remove(darkThemeClass);
+            SettingsButton?.Classes.Remove(darkThemeClass);
+            MenuButton?.Classes.Remove(darkThemeClass);
         }
     }
 
@@ -82,6 +287,60 @@ public partial class MainView : UserControl
                 ThemeIcon.Kind = MaterialIconKind.ThemeLightDark;
                 ThemeIcon.Foreground = new SolidColorBrush(Colors.Black);
             }
+        }
+    }
+
+    private void AboutAuthor_Click(object? sender, RoutedEventArgs e)
+    {
+        var aboutContent = "桥头产线管理系统\n\n开发者信息：\n• 主要开发者：桥头科技团队\n• 联系邮箱：634807923@qq.com\n• 技术支持：18996478118\n\n特别感谢：\n• Avalonia UI 团队\n• SukiUI 开源项目\n• .NET 社区贡献者";
+        ShowInfoDialog("关于作者", aboutContent);
+    }
+
+    private void CopyrightInfo_Click(object? sender, RoutedEventArgs e)
+    {
+        var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
+        var copyrightContent = $"桥头产线管理系统 v{version}\n\n版权声明：\n© 2025 桥德星科技有限公司。保留所有权利。\n\n软件许可：\n本软件受版权法和国际条约保护。未经授权不得复制、分发或修改本软件。\n\n开源组件许可：\n• Avalonia UI - MIT License\n• SukiUI - MIT License\n• MQTTnet - MIT License\n• .NET Runtime - MIT License\n\n免责声明：\n本软件按\"现状\"提供，不提供任何明示或暗示的担保。\n在任何情况下，作者或版权持有人均不对任何索赔、损害或其他责任负责。\n\n技术支持：\n如需技术支持，请联系：634807923@qq.com";
+        ShowInfoDialog("版权信息", copyrightContent);
+    }
+
+    private void SystemInfo_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var mqttService = ServiceProvider.MqttHostService;
+            var systemContent = $"系统信息\n\n• 应用名称：桥头产线管理系统\n• 版本号：{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0"}\n• MQTT Broker：{mqttService.CurrentIpAddress ?? "未启动"}:{mqttService.Port}";
+            ShowInfoDialog("系统信息", systemContent);
+        }
+        catch (Exception ex)
+        {
+            ShowInfoDialog("系统信息", $"获取系统信息时发生错误：\n{ex.Message}");
+        }
+    }
+
+    private void ShowInfoDialog(string title, string content)
+    {
+        try
+        {
+            var textBlock = new TextBlock
+            {
+                Text = content,
+                TextWrapping = TextWrapping.Wrap,
+                FontFamily = "Consolas,Monaco,monospace",
+                FontSize = 12,
+                LineHeight = 18,
+                Margin = new Thickness(20)
+            };
+
+            MainWindow.DialogManager.CreateDialog()
+                .WithTitle(title)
+                .WithContent(textBlock)
+                .WithActionButton("确定", _ => { }, true, "Flat", "Accent")
+                .Dismiss().ByClickingBackground()
+                .TryShow();
+        }
+        catch (Exception)
+        {
+            // 忽略对话框错误
         }
     }
 
@@ -154,218 +413,5 @@ public partial class MainView : UserControl
             : new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
     }
 
-    /// <summary>
-    /// 设置主题按钮的 3D hover 效果
-    /// </summary>
-    private void SetupThemeButtonHover()
-    {
-        if (ThemeToggleButton != null)
-        {
-            // 创建默认的 3D 背景
-            var defaultBackground = Create3DBackground(false, false);
-            ThemeToggleButton.Background = defaultBackground;
-            
-            // 初始化时更新图标颜色
-            UpdateThemeIcon();
-
-            ThemeToggleButton.PointerEntered += (s, e) =>
-            {
-                // 悬停时的 3D 效果 - 更亮的渐变
-                var hoverBackground = Create3DBackground(true, false);
-                ThemeToggleButton.Background = hoverBackground;
-                
-                // 增强阴影效果
-                var enhancedShadow = new DropShadowDirectionEffect
-                {
-                    BlurRadius = 4,
-                    ShadowDepth = 3,
-                    Direction = 315,
-                    Color = Color.FromArgb(0x60, 0x00, 0x00, 0x00),
-                    Opacity = 0.4
-                };
-                ThemeToggleButton.Effect = enhancedShadow;
-            };
-
-            ThemeToggleButton.PointerExited += (s, e) =>
-            {
-                // 恢复默认 3D 效果
-                var defaultBackground = Create3DBackground(false, false);
-                ThemeToggleButton.Background = defaultBackground;
-                
-                // 恢复默认阴影
-                var defaultShadow = new DropShadowDirectionEffect
-                {
-                    BlurRadius = 3,
-                    ShadowDepth = 2,
-                    Direction = 315,
-                    Color = Color.FromArgb(0x40, 0x00, 0x00, 0x00),
-                    Opacity = 0.3
-                };
-                ThemeToggleButton.Effect = defaultShadow;
-            };
-
-            ThemeToggleButton.PointerPressed += (s, e) =>
-            {
-                // 按下时的 3D 效果 - 内陷效果
-                var pressedBackground = Create3DBackground(false, true);
-                ThemeToggleButton.Background = pressedBackground;
-                
-                // 减小阴影，模拟按下效果
-                var pressedShadow = new DropShadowDirectionEffect
-                {
-                    BlurRadius = 1,
-                    ShadowDepth = 1,
-                    Direction = 135, // 反向阴影
-                    Color = Color.FromArgb(0x30, 0x00, 0x00, 0x00),
-                    Opacity = 0.5
-                };
-                ThemeToggleButton.Effect = pressedShadow;
-            };
-
-            ThemeToggleButton.PointerReleased += (s, e) =>
-            {
-                if (ThemeToggleButton.IsPointerOver)
-                {
-                    // 如果仍在悬停，恢复悬停效果
-                    var hoverBackground = Create3DBackground(true, false);
-                    ThemeToggleButton.Background = hoverBackground;
-                    
-                    var enhancedShadow = new DropShadowDirectionEffect
-                    {
-                        BlurRadius = 4,
-                        ShadowDepth = 3,
-                        Direction = 315,
-                        Color = Color.FromArgb(0x60, 0x00, 0x00, 0x00),
-                        Opacity = 0.4
-                    };
-                    ThemeToggleButton.Effect = enhancedShadow;
-                }
-                else
-                {
-                    // 恢复默认状态
-                    var defaultBackground = Create3DBackground(false, false);
-                    ThemeToggleButton.Background = defaultBackground;
-                    
-                    var defaultShadow = new DropShadowDirectionEffect
-                    {
-                        BlurRadius = 3,
-                        ShadowDepth = 2,
-                        Direction = 315,
-                        Color = Color.FromArgb(0x40, 0x00, 0x00, 0x00),
-                        Opacity = 0.3
-                    };
-                    ThemeToggleButton.Effect = defaultShadow;
-                }
-            };
-        }
-    }
-
-    /// <summary>
-    /// 创建 3D 背景效果
-    /// </summary>
-    private LinearGradientBrush Create3DBackground(bool isHover, bool isPressed)
-    {
-        if (isPressed)
-        {
-            // 按下状态 - 内陷效果（反向渐变）
-            if (_isDarkTheme)
-            {
-                // 暗黑主题：深色背景，内陷效果（白色图标需要深色背景）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0x10, 0x10, 0x10) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0x20, 0x20, 0x20) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0x30, 0x30, 0x30) }
-                    }
-                };
-            }
-            else
-            {
-                // 亮色主题：浅色背景，内陷效果（黑色图标需要浅色背景）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0xE0, 0xE0, 0xE0) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0xF0, 0xF0, 0xF0) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0xFF, 0xFF, 0xFF) }
-                    }
-                };
-            }
-        }
-        else if (isHover)
-        {
-            // 悬停状态 - 更亮的 3D 效果
-            if (_isDarkTheme)
-            {
-                // 暗黑主题：更深的黑色背景（悬停时）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0x40, 0x40, 0x40) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0x30, 0x30, 0x30) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0x20, 0x20, 0x20) }
-                    }
-                };
-            }
-            else
-            {
-                // 亮色主题：更亮的白色背景（悬停时）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0xFF, 0xFF, 0xFF) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0xF8, 0xF8, 0xFF) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0xF0, 0xF0, 0xF8) }
-                    }
-                };
-            }
-        }
-        else
-        {
-            // 默认状态 - 标准 3D 效果
-            if (_isDarkTheme)
-            {
-                // 暗黑主题：深色背景（默认状态）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0x20, 0x20, 0x20) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0x18, 0x18, 0x18) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0x10, 0x10, 0x10) }
-                    }
-                };
-            }
-            else
-            {
-                // 亮色主题：浅色背景（默认状态）
-                return new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                    GradientStops = new GradientStops
-                    {
-                        new GradientStop { Offset = 0, Color = Color.FromRgb(0xFF, 0xFF, 0xFF) },
-                        new GradientStop { Offset = 0.5, Color = Color.FromRgb(0xF0, 0xF0, 0xF0) },
-                        new GradientStop { Offset = 1, Color = Color.FromRgb(0xE0, 0xE0, 0xE0) }
-                    }
-                };
-            }
-        }
-    }
+    // 3D 按钮样式已移至 IconButtonStyles.axaml，代码大幅简化
 }

@@ -22,63 +22,7 @@
         <sukiUi:SukiDialogHost Name="DialogHost"/>
     </sukiUi:SukiWindow.Hosts>
 
-    <!-- 标题栏右侧控件 -->
-    <sukiUi:SukiWindow.RightWindowTitleBarControls>
-        <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
-            <!-- 设置按钮 -->
-            <Button Name="SettingsButton" 
-                    BorderThickness="0"
-                    Padding="4"
-                    Width="24"
-                    Height="24"
-                    CornerRadius="12"
-                    ToolTip.Tip="设置"
-                    Click="SettingsButton_Click">
-                
-                <!-- 设置 Flyout 属性 -->
-                <Button.Flyout>
-                    <MenuFlyout Placement="BottomEdgeAlignedRight">
-                        <MenuItem Header="关于作者" Click="AboutAuthor_Click">
-                            <MenuItem.Icon>
-                                <materialIcons:MaterialIcon Kind="Person" 
-                                                            Width="16" Height="16"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Foreground="{DynamicResource SukiText}"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        
-                        <MenuItem Header="版权信息" Click="CopyrightInfo_Click">
-                            <MenuItem.Icon>
-                                <materialIcons:MaterialIcon Kind="Copyright" 
-                                                            Width="16" Height="16"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Foreground="{DynamicResource SukiText}"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        
-                        <MenuItem Header="系统信息" Click="SystemInfo_Click">
-                            <MenuItem.Icon>
-                                <materialIcons:MaterialIcon Kind="Info" 
-                                                            Width="16" Height="16"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Foreground="{DynamicResource SukiText}"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </MenuFlyout>
-                </Button.Flyout>
-                
-                <!-- 按钮内容 -->
-                <materialIcons:MaterialIcon Kind="Settings"
-                                            Width="16" Height="16" 
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource SukiText}"/>
-            </Button>
-        </StackPanel>
-    </sukiUi:SukiWindow.RightWindowTitleBarControls>
+    <!-- 标题栏右侧控件移除设置按钮，避免重复 -->
 
 	<views:MainView />
 </sukiUi:SukiWindow>

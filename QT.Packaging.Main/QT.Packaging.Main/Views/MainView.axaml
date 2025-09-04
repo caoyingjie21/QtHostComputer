@@ -7,24 +7,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="QT.Packaging.Main.Views.MainView"
              x:DataType="vm:MainViewModel">
+  
+  <UserControl.Styles>
+    <StyleInclude Source="avares://QT.Packaging.Base/Styles/IconButtonStyles.axaml"/>
+  </UserControl.Styles>
   <Design.DataContext>
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <Grid RowDefinitions="Auto,*">
+  <Grid RowDefinitions="Auto,*,Auto">
     <!-- 主题切换按钮 - 右上角 -->
     <Button Name="ThemeToggleButton"
+            Classes="IconButton3D"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Margin="20"
-            Width="40"
-            Height="40"
-            CornerRadius="20"
-            BorderThickness="2"
             BorderBrush="{DynamicResource SukiControlBorderBrush}"
-            HorizontalContentAlignment="Center"
-            VerticalContentAlignment="Center"
-            Padding="0"
             ToolTip.Tip="切换主题"
             Click="ThemeToggleButton_Click">
       
@@ -42,47 +40,83 @@
       </Grid>
     </Button>
 
-    <!-- 扫码输入框和操作按钮区域 -->
-    <StackPanel Grid.Row="0" 
-                Orientation="Horizontal" 
-                VerticalAlignment="Top"
-                Margin="20,20,80,0"
-                Spacing="10">
-      
-      <!-- 扫码输入框 -->
-      <TextBox Name="ScannerInputBox"
-               Width="200"
-               Height="32"
-               Watermark="请扫描或输入条码"
-               CornerRadius="6"/>
-      
-      <!-- 确认按钮 -->
-      <Button Name="ConfirmButton"
-              Width="80"
-              Height="32"
-              CornerRadius="6"
-              Content="确认"
-              ToolTip.Tip="确认输入内容"/>
-      
-      <!-- 载入机器按钮 -->
-      <Button Name="LoadMachineButton"
-              Width="100"
-              Height="32"
-              CornerRadius="6"
-              Content="载入机器"
-              ToolTip.Tip="载入机器配置"/>
-      
-      <!-- 保存配置按钮 -->
-      <Button Name="SaveConfigButton"
-              Width="100"
-              Height="32"
-              CornerRadius="6"
-              Content="保存配置"
-              ToolTip.Tip="保存当前配置"/>
-      
-    </StackPanel>
+    <!-- 面包屑导航 - 左侧，与右侧主题按钮垂直居中对齐 -->
+    <StackPanel Grid.Row="0"
+                Name="BreadcrumbBar"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Margin="24,20,20,0"
+                Spacing="6" />
+
+
     
-    <!-- 主要内容区域 -->
-    <ContentPresenter Grid.Row="1" />
+    <!-- 主要内容区域（可导航） -->
+    <ContentPresenter Grid.Row="1" Name="MainContentHost" />
+
+    <!-- 左下角按钮栏：退出 > 菜单 > 设置（图标按钮） -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="20,10,20,20"
+                Spacing="10">
+
+      <!-- 退出按钮（红色，图标） -->
+      <Button Name="ExitButton"
+              Classes="IconButton3D Danger"
+              ToolTip.Tip="退出应用"
+              Click="ExitButton_Click">
+        <materialIcons:MaterialIcon Kind="Power"
+                                    Width="20" Height="20"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="White" />
+      </Button>
+
+      <!-- 菜单按钮（图标，可选飞出菜单） -->
+      <Button Name="MenuButton"
+              Classes="IconButton3D"
+              ToolTip.Tip="功能模块"
+              Click="MenuButton_Click">
+        <materialIcons:MaterialIcon Kind="ViewGrid"
+                                    Width="20" Height="20"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource SukiText}" />
+      </Button>
+
+      <!-- 设置按钮（图标，迁移自右上角设置菜单） -->
+      <Button Name="SettingsButton"
+              Classes="IconButton3D"
+              ToolTip.Tip="打开设置"
+              Click="SettingsButton_Click">
+        <Button.Flyout>
+          <MenuFlyout Placement="Bottom">
+            <MenuItem Header="关于作者" Click="AboutAuthor_Click">
+              <MenuItem.Icon>
+                <materialIcons:MaterialIcon Kind="Person" Width="16" Height="16"/>
+              </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="版权信息" Click="CopyrightInfo_Click">
+              <MenuItem.Icon>
+                <materialIcons:MaterialIcon Kind="Copyright" Width="16" Height="16"/>
+              </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="系统信息" Click="SystemInfo_Click">
+              <MenuItem.Icon>
+                <materialIcons:MaterialIcon Kind="Info" Width="16" Height="16"/>
+              </MenuItem.Icon>
+            </MenuItem>
+          </MenuFlyout>
+        </Button.Flyout>
+        <materialIcons:MaterialIcon Kind="Settings"
+                                    Width="20" Height="20"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource SukiText}" />
+      </Button>
+
+    </StackPanel>
   </Grid>
 </UserControl>

@@ -14,6 +14,10 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AvaloniaResource Include="Styles\**" />
+  </ItemGroup>
+
 
 	<!-- 通用包引用 -->
 	<ItemGroup>

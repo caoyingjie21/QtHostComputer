@@ -33,52 +33,10 @@ public partial class MainWindow : SukiWindow
     {
         SetWindowToOverrideTaskbar();
         
-        // 在窗口加载完成后设置按钮 hover 效果
-        SetupSettingsButtonHover();
+        // 顶部设置按钮已移除，悬停效果不再需要
     }
 
-    /// <summary>
-    /// 设置设置按钮的 hover 效果
-    /// </summary>
-    private void SetupSettingsButtonHover()
-    {
-        if (SettingsButton != null)
-        {
-            SettingsButton.PointerEntered += (s, e) =>
-            {
-                var hoverBrush = new Avalonia.Media.SolidColorBrush(
-                    Avalonia.Media.Colors.SkyBlue); // 天蓝色
-                SettingsButton.Background = hoverBrush;
-            };
-
-            SettingsButton.PointerExited += (s, e) =>
-            {
-                SettingsButton.Background = Avalonia.Media.Brushes.Transparent;
-            };
-
-            SettingsButton.PointerPressed += (s, e) =>
-            {
-                var pressedBrush = new Avalonia.Media.SolidColorBrush(
-                    Avalonia.Media.Colors.DeepSkyBlue); // 深天蓝色 - 按下时更深一些
-                SettingsButton.Background = pressedBrush;
-            };
-
-            SettingsButton.PointerReleased += (s, e) =>
-            {
-                // 检查鼠标是否还在按钮上
-                if (SettingsButton.IsPointerOver)
-                {
-                    var hoverBrush = new Avalonia.Media.SolidColorBrush(
-                        Avalonia.Media.Colors.SkyBlue); // 天蓝色
-                    SettingsButton.Background = hoverBrush;
-                }
-                else
-                {
-                    SettingsButton.Background = Avalonia.Media.Brushes.Transparent;
-                }
-            };
-        }
-    }
+    // 右上角设置按钮 hover 逻辑已删除
 
     private void SetWindowToOverrideTaskbar()
     {
